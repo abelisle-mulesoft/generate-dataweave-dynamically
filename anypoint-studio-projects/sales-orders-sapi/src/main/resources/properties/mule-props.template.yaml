@@ -1,0 +1,31 @@
+#===================================================================================================
+# Mule application properties
+#===================================================================================================
+env:
+  name: "dev"
+
+#---------------------------------------------------------------------------------------------------
+# HTTP Listener on CloudHub
+http_listener:  # Comnmon to HTTP and HTTPS
+  host: "0.0.0.0"
+
+http:
+  port: "8081"
+https:
+  port: "8082"
+
+#---------------------------------------------------------------------------------------------------
+postgres_db:
+  host:           ""
+  port:           ""
+  url:            "jdbc:postgresql://${postgres_db.host}:${postgres_db.port}/${postgres_db.db_name}"
+  driver_class:   "org.postgresql.Driver"
+  username:       ""
+  password:       ""
+  db_name:        ""
+
+anypoint_mq:
+  url:            ""
+  destination:    ""
+  client_id:      ""
+  client_secret:  ""

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	<global-property doc:name="Global Property" doc:id="5c5df7a5-c3bc-4a68-af44-a1c2cce53e6b" name="env" value="dev" />
+	<configuration-properties doc:name="Configuration properties" doc:id="0accae39-7b4a-40b8-ad18-927a83f5d22c" file="properties/mule-props-${env}.yaml" />
+    <http:listener-config name="dataweave-generator-httpListenerConfig">
+		<http:listener-connection host="${http_listener.host}" port="${http.port}"/>
+    </http:listener-config>
+	<db:config name="Postgres_Database_Config" doc:name="Database Config" doc:id="44a9f3d1-ba50-4e0e-9e37-24dd400b09cb" >
+		<db:generic-connection url="${postgres_db.url}" driverClassName="${postgres_db.driver_class}" user="${postgres_db.username}" password="${postgres_db.password}" />
+	</db:config>
+</mule>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <apikit:config name="dataweave-generator-config" api="dataweave-generator.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="dataweave-generator-main">
+        <http:listener config-ref="dataweave-generator-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="dataweave-generator-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST" enableNotifications="true" logException="true">
+                <ee:transform doc:name="Create HTTP 400 Response" doc:id="838ce34a-43c5-46cc-9111-02427546b38a">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	dateTime: now(),
+	httpStatus: 400,
+	summaryMessage: error.description,
+	errorType: error.errorType.identifier
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Create HTTP 404 Response" doc:id="ccaddfb3-01c2-4d8d-b1b8-93bcf0d695f6">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  dateTime: now(),
+  httpStatus: 404,
+  summaryMessage: "There is no resource that match the provided URL",
+  errorType: error.errorType.identifier
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform doc:name="Create HTTP 405 Response" doc:id="30cdf301-5374-45b0-8e79-3b2c9616f8b9">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  dateTime: now(),
+  httpStatus: 405,
+  summaryMessage: "The requested HTTP method is not allowed on this resource",
+  errorType: error.errorType.identifier
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[405]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform doc:name="Create HTTP 406 Response" doc:id="cfc6b515-f555-4842-b709-12cafa38d44d">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  dateTime: now(),
+  httpStatus: 406,
+  summaryMessage: "Not acceptable error",
+  errorType: error.errorType.identifier
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[406]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform doc:name="Create HTTP 415 Response" doc:id="8a4fdabf-70e2-424b-b222-ad03a7d600e4">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  dateTime: now(),
+  httpStatus: 415,
+  summaryMessage: "The media type is not supported by this resource",
+  errorType: error.errorType.identifier
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[415]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform doc:name="Create HTTP 501 Response" doc:id="73a2d7e4-6a4b-40d2-a4dc-e4e222a96d0d">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  dateTime: now(),
+  httpStatus: 501,
+  summaryMessage: "Not implemented error",
+  errorType: error.errorType.identifier
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[501]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APP:*" enableNotifications="true" logException="true">
+                <ee:transform doc:name="Create APP Sppecific Response" doc:id="2a4f58d2-5587-4b4a-bf79-f564591ff977">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  dateTime: now(),
+  httpStatus: vars.httpStatus,
+  summaryMessage: error.description,
+  errorType: error.errorType.identifier
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables />
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="ANY">
+                <ee:transform doc:name="Create HTTP 500 Response" doc:id="ca426582-b5f9-4d3f-99ed-0b681228a79f">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  dateTime: now(),
+  httpStatus: 500,
+  summaryMessage: "Internal server error",
+  errorType: "ANY"
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[500]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="dataweave-generator-console">
+        <http:listener config-ref="dataweave-generator-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="dataweave-generator-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Create HTTP 404 Response" doc:id="386db79e-1287-4c16-8948-1668dfe24a68">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  dateTime: now(),
+  httpStatus: 404,
+  summaryMessage: "There is no resource that match the provided URL",
+  errorType: error.errorType.identifier
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="delete:\dw-scripts\(scriptName):dataweave-generator-config">
+		<flow-ref doc:name="delete-dw-script-impl-flow" doc:id="298398af-bae8-4851-860f-d57038ddf530" name="delete-dw-script-impl-flow"/>
+    </flow>
+	<flow name="get:\dw-scripts:dataweave-generator-config">
+        <flow-ref doc:name="get-dw-scripts-impl-flow" doc:id="2f422f80-bed2-45ba-92ef-6e4d3fb154cf" name="get-dw-scripts-impl-flow" />
+    </flow>
+	<flow name="get:\dw-scripts\(scriptName):dataweave-generator-config">
+        <flow-ref doc:name="get-dw-script-by-name-impl-flow" doc:id="3cb10957-a38f-4088-8042-ebbad113228a" name="get-dw-script-by-name-impl-flow" />
+    </flow>
+    <flow name="post:\dw-scripts:application\json:dataweave-generator-config">
+        <flow-ref doc:name="post-dw-script-impl-flow" doc:id="3c8bf335-0ea1-412b-a71d-8d9ecdfba5f2" name="post-dw-script-impl-flow" />
+    </flow>
+    <flow name="put:\dw-scripts\(scriptName):application\json:dataweave-generator-config">
+        <flow-ref doc:name="put-dw-script-impl-flow" doc:id="8e4dfbfe-aac8-4131-893e-3cf2ce68a724" name="put-dw-script-impl-flow" />
+    </flow>
+</mule>

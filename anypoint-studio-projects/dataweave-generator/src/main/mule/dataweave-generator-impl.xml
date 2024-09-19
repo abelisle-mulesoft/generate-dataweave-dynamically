@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="delete-dw-script-impl-flow" doc:id="19e50200-851e-48b3-9836-b39117abae57" >
+		<logger level="TRACE" doc:name="Trace - Flow Starting" doc:id="137d862f-c9f3-4fcf-953d-b9cbb853b308" message="Flow starting" />
+		<logger level="TRACE" doc:name="Tracing - Deleting From DB" doc:id="54e4e553-899c-482b-9102-85be4603e908" message="Deleting DataWeave script and its configuration from the database"/>
+		<db:delete doc:name="FROM DW Script Table" doc:id="54c19999-c3ac-437b-96ca-015b32a45b32" config-ref="Postgres_Database_Config">
+			<db:sql ><![CDATA[DELETE
+FROM public.dataweave_script
+WHERE script_name = :scriptName]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'scriptName': attributes.uriParams.scriptName}]]]></db:input-parameters>
+		</db:delete>
+		<logger level="TRACE" doc:name="Trace - Creating Empty Response" doc:id="7060f57f-fd27-41be-89f2-a09aed7cf50b" message="Creating empty API response"/>
+		<set-payload value="#[null]" doc:name="null" doc:id="64dde030-b6a9-4ffd-b464-218bc151ddac" mimeType="*/*" />
+		<set-variable value="204" doc:name="httpStatus" doc:id="6ec11512-6726-468f-a29e-77a2bf63a82e" variableName="httpStatus" />
+		<logger level="TRACE" doc:name="Trace - Flow Ending" doc:id="f48595f2-5586-4f2e-90b8-17adfeb9ce97" message="Flow ending" />
+	</flow>
+	<flow name="get-dw-scripts-impl-flow" doc:id="db53584e-7992-41aa-ba90-dabb1e3e8c5e" >
+		<logger level="TRACE" doc:name="Trace - Flow Starting" doc:id="e68df1e7-ce70-4b3a-9be9-c91c5567f270" message="Flow starting" />
+		<logger level="TRACE" doc:name="Tracing - Retrieving From DB" doc:id="6d8cd107-89d9-4801-a294-76e92e6b12e3" message="Retrieving all DataWeave scripts and their configuration from the database"/>
+		<db:select doc:name="FROM DW Script Table" doc:id="c85e5d01-374b-4184-bd7d-0a935e567f50" config-ref="Postgres_Database_Config">
+			<db:sql ><![CDATA[SELECT script_name, configuration, dw_script
+FROM public.dataweave_script;]]></db:sql>
+		</db:select>
+		<choice doc:name="Retrieved any DW Scripts?" doc:id="17458e13-78cf-4fe8-a5d7-36951a97c130" >
+			<when expression="#[sizeOf(payload) &gt; 0]">
+				<ee:transform doc:name="Create API Response" doc:id="6d667337-04ee-4c04-a2b1-06308075a3af">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	configuration: do {
+		var configObject = read(payload01.configuration,"application/json")
+		---
+		{
+			scriptName: configObject.scriptName,
+			contentType: configObject.contentType,
+			(xmlRootElement: configObject.xmlRootElement default "") if(upper(configObject.contentType) == "XML"),
+			fields: configObject.fields
+		}
+	},
+	dwScript: payload01.dw_script
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise>
+				<ee:transform doc:name="Create Empty Response" doc:id="6dc8c0b0-0c42-4752-8573-5851af6a83e5" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+[]]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="TRACE" doc:name="Trace - Flow Ending" doc:id="6c78705c-0120-4bad-bb32-ab4f70c424d5" message="Flow ending" />
+	</flow>
+	<flow name="get-dw-script-by-name-impl-flow" doc:id="a00e4e7b-a77a-42e2-ac9f-4146515d327f" >
+		<logger level="TRACE" doc:name="Trace - Flow Starting" doc:id="e338f580-75e2-4a19-864c-35f066f21723" message="Flow starting" />
+		<logger level="TRACE" doc:name="Tracing - Retrieving From DB" doc:id="5513cf00-8d5d-46b4-8eab-d10e103a199e" message="Retrieving DataWeave script by name and its configuration from the database"/>
+		<db:select doc:name="FROM DW Script Table" doc:id="acdf6d20-ca8f-4404-853c-7d4b9407b1ad" config-ref="Postgres_Database_Config">
+			<db:sql ><![CDATA[SELECT script_name, configuration, dw_script
+FROM public.dataweave_script
+WHERE script_name = :scriptName]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'scriptName': attributes.uriParams.scriptName}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Found DW Script?" doc:id="d49cc65d-1bb2-4dcd-8592-e5b4e2125623">
+			<when expression="#[sizeOf(payload) == 1]">
+				<ee:transform doc:name="Create API Response" doc:id="47047130-5e4f-4e9c-b2fd-72f0e8bbc28f">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var configObject = read(payload[0].configuration,"application/json")
+---
+{
+	configuration: {
+		scriptName: configObject.scriptName,
+		contentType: configObject.contentType,
+		(xmlRootElement: configObject.xmlRootElement default "") if(upper(configObject.contentType) == "XML"),
+		fields: configObject.fields
+	},
+	dwScript: payload[0].dw_script
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise>
+				<set-variable value="404" doc:name="httpStatus" doc:id="2d5fb9d0-4605-4526-a84f-753f8ac1ac28" variableName="httpStatus" />
+				<raise-error doc:name="Not Found" doc:id="7cee191a-0727-49c6-872d-674ddd294679" type="APP:NOT_FOUND" description="DW script not found" />
+			</otherwise>
+		</choice>
+		<logger level="TRACE" doc:name="Trace - Flow Ending" doc:id="41784617-21fb-436e-9452-94d38a304bd1" message="Flow ending" />
+	</flow>
+	<flow name="post-dw-script-impl-flow" doc:id="db1c7044-b3bd-4d65-859d-d46bddcf864c" >
+		<logger level="TRACE" doc:name="Trace - Flow Starting" doc:id="6d907108-e5fa-41f8-80b0-b6b2f51afca6" message="Flow starting" />
+		<set-variable value="#[payload.scriptName]" doc:name="scriptName" doc:id="d4141c25-411e-403e-934a-df3169139525" variableName="scriptName" />
+		<set-variable value='#[write(payload, "application/json")]' doc:name="configuration" doc:id="39bba615-4d4c-4b8b-9450-68544cb39da7" variableName="configuration"/>
+		<logger level="TRACE" doc:name="Trace - Generating DW Script" doc:id="aafedfa4-be21-44d2-8802-f55f6059e99c" message="Generating DataWeave script using provided information"/>
+		<ee:transform doc:name="To DW Script" doc:id="e43a162a-253f-43f6-a02c-00178df1709d" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable resource="dw-scripts/scriptGenerator.dwl" variableName="dwScript" />
+			</ee:variables>
+		</ee:transform>
+		<logger level="TRACE" doc:name="Trace - DW Script" doc:id="9aa1dba2-4e8f-46fd-952f-51357739d710" message="#[vars.dwScript]" />
+		<logger level="TRACE" doc:name="Tracing - Storing in DB" doc:id="00d86bec-e412-4d53-98ee-fabd547d1f0e" message="Storing DataWeave script and its configuration to the database"/>
+		<db:insert doc:name="INTO DW Script Table" doc:id="ae6f92c7-4bb4-442f-9256-fe8978b01dad" config-ref="Postgres_Database_Config">
+			<db:sql ><![CDATA[INSERT INTO public.dataweave_script(script_name, configuration, dw_script)
+VALUES (:scriptName, :configuration, :dwScript)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'scriptName': vars.scriptName, 'configuration': vars.configuration, 'dwScript': vars.dwScript}]]]></db:input-parameters>
+		</db:insert>
+		<logger level="TRACE" doc:name="Trace - Generated Script" doc:id="f1c7b586-336d-421d-aa75-eca088615d24" message="Generated DataWeave script successfully" />
+		<ee:transform doc:name="Create API Response" doc:id="f5b4ba3a-344d-4f1b-97b7-0d9debfd8b25" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var configObject = read(vars.configuration,"application/json")
+---
+{
+	configuration: {
+		scriptName: configObject.scriptName,
+		contentType: configObject.contentType,
+		(xmlRootElement: configObject.xmlRootElement default "") if(upper(configObject.contentType) == "XML"),
+		fields: configObject.fields
+	},
+	dwScript: vars.dwScript
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="TRACE" doc:name="Trace - Flow Ending" doc:id="6095ee6d-4685-4b74-9599-df477e99fb5b" message="Flow ending" />
+	</flow>
+	<flow name="put-dw-script-impl-flow" doc:id="d3a26a8b-eb11-47e1-b6f6-99ce6685bc90" >
+		<logger level="TRACE" doc:name="Trace - Flow Starting" doc:id="9621d4c2-340d-4a89-a3d7-aa881035e218" message="Flow starting" />
+		<set-variable value="#[attributes.uriParams.scriptName]" doc:name="scriptName" doc:id="b7cf9a45-8e80-414f-93f4-fb9f4864378f" variableName="scriptName" />
+		<ee:transform doc:name="Update Configuration" doc:id="e5dc5d4c-2032-4a11-a5b8-b3321ed45aa5" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="configuration" ><![CDATA[%dw 2.0
+output text/plain
+---
+write(
+  {
+	scriptName: vars.scriptName,
+	contentType: payload.contentType,
+	xmlRootElement: payload.xmlRootElement default "",
+	fields: payload.fields
+  }, "application/json")
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="TRACE" doc:name="Trace - Regenerating DW Script" doc:id="245f7ff4-0c2c-41bf-82cc-2a1fe84d5123" message="Regenerating DataWeave script using provided information"/>
+		<ee:transform doc:name="To DW Script" doc:id="10e537bf-dd1c-4950-9651-0d695341244c" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable resource="dw-scripts/scriptGenerator.dwl" variableName="dwScript" />
+			</ee:variables>
+		</ee:transform>
+		<logger level="TRACE" doc:name="Trace - DW Script" doc:id="2da385a2-4a8b-4e2f-ace1-718e5d866f46" message="#[vars.dwScript]" />
+		<logger level="TRACE" doc:name="Tracing - Storing in DB" doc:id="beaba5c0-f334-437e-89e8-446f55f19c01" message="Storing DataWeave script and its configuration to the database"/>
+		<db:update doc:name="DW Script Table" doc:id="59053a0a-45a8-453a-a66c-1df0b59cd8f8" config-ref="Postgres_Database_Config">
+			<db:sql ><![CDATA[UPDATE public.dataweave_script
+SET configuration=:configuration, dw_script=:dwScript
+WHERE script_name = :scriptName
+]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'scriptName': vars.scriptName, 'configuration': vars.configuration, 'dwScript': vars.dwScript}]]]></db:input-parameters>
+		</db:update>
+		<logger level="TRACE" doc:name="Trace - Generated Script" doc:id="91e7cc2d-e3d2-4f77-9c37-2bacc0628fc1" message="Generated DataWeave script successfully" />
+		<ee:transform doc:name="Create API Response" doc:id="cbe638b9-7a68-457d-b4ff-5c84e56d78fa" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var configObject = read(vars.configuration,"application/json")
+---
+{
+	configuration: {
+		scriptName: configObject.scriptName,
+		contentType: configObject.contentType,
+		(xmlRootElement: configObject.xmlRootElement default "") if(upper(configObject.contentType) == "XML"),
+		fields: configObject.fields
+	},
+	dwScript: vars.dwScript
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="TRACE" doc:name="Trace - Flow Ending" doc:id="c7179cf0-d570-4d3d-9f98-caa45716928c" message="Flow ending" />
+	</flow>
+</mule>

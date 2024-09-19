@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_c2980f3c_66a9_4472_90bf_583c8ea07733_Output_Payload = Array<{  onlineOrderFlag: String,   dueDate: String,   freight: String,   totalDue: String,   billToAddressId: String,   creditCardId: String,   subTotal: String,   shipDate: String,   accountNumber: String,   shipToAddressId: String,   shipMethodId: String,   currencyRateId: String,   creditCardApprovalCode: String,   purchaseOrderNumber: String,   customerId: String,   modifiedDate: String,   territoryId: String,   comment: String,   salesOrderNumber: String,   taxAmount: String,   orderDate: String,   status: String,   salesPersonId: String,   _?: Any} {"description": "The order header contains data that is common and relevant for all items within the sales\norder. This information includes but is not limited to order date, ship date, billing address,\nand shipping address.\n"}> {"description": "Array of Sales Order Headers"}
+

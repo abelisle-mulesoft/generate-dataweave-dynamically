@@ -1,0 +1,6 @@
+{
+  "scriptName": "sales-order-header-script",
+  "contentType": "XML",
+  "xmlRootElement": "orders",
+  "fields": "sales_order_id,order_date,status,sub_total,total_due"
+}

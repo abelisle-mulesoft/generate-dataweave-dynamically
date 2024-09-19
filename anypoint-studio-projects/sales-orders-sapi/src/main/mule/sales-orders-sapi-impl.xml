@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd">
+	<flow name="get-orders-headers-impl-flow" doc:id="c2980f3c-66a9-4472-90bf-583c8ea07733" >
+		<logger level="TRACE" doc:name="Trace - Flow Starting" doc:id="7ff1ad27-656a-4cc8-b1d6-efda49dd7fd0" message="Flow starting"/>
+		<logger level="TRACE" doc:name="Trace - Retrieving Order Headers" doc:id="474472cb-92bc-4e89-a187-c7390dde1b60" message="Retrieving sales order headers from database"/>
+		<db:select doc:name="FROM Order Header Table" doc:id="6ec6d2ad-6ef7-4348-b1fa-7b53ccafbbc7" config-ref="Postgres_Database_Config">
+			<db:sql ><![CDATA[SELECT sales_order_id, order_date, due_date, ship_date, status, online_order_flag, sales_order_number, purchase_order_number, account_number, customer_id, sales_person_id, territory_id, bill_to_address_id, ship_to_address_id, ship_method_id, credit_card_id, credit_card_approval_code, currency_rate_id, sub_total, tax_amount, freight, total_due, comment, modified_date
+FROM public.sales_order_header
+ORDER BY sales_order_id ASC]]></db:sql>
+		</db:select>
+		<logger level="TRACE" doc:name="Trace - Transforming to JSON" doc:id="9aae00d8-3645-416a-97ab-14cdb6ecd93d" message="Trace - Transforming sales order headers to JSON format"/>
+		<ee:transform doc:name="To JSON" doc:id="2ae0a6e2-28d9-4844-b4e3-83530b59cc55" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	onlineOrderFlag: payload01.online_order_flag default "",
+	dueDate: payload01.due_date default "",
+	freight: payload01.freight default "",
+	totalDue: payload01.total_due default "",
+	billToAddressId: payload01.bill_to_address_id default "",
+	creditCardId: payload01.credit_card_id default "",
+	subTotal: payload01.sub_total default "",
+	shipDate: payload01.ship_date default "",
+	accountNumber: payload01.account_number default "",
+	shipToAddressId: payload01.ship_to_address_id default "",
+	shipMethodId: payload01.ship_method_id default "",
+	currencyRateId: payload01.currency_rate_id default "",
+	creditCardApprovalCode: payload01.credit_card_approval_code default "",
+	purchaseOrderNumber: payload01.purchase_order_number default "",
+	customerId: payload01.customer_id default "",
+	modifiedDate: payload01.modified_date default "",
+	territoryId: payload01.territory_id default "",
+	comment: payload01.comment default "",
+	salesOrderNumber: payload01.sales_order_number default "",
+	taxAmount: payload01.tax_amount default "",
+	orderDate: payload01.order_date default "",
+	status: payload01.status default "",
+	salesPersonId: payload01.sales_person_id default ""
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="TRACE" doc:name="Trace - Flow Ending" doc:id="b5c42b8b-f5fd-4d05-ad94-330f3c8fa6c6" message="Flow ending" />
+	</flow>
+	<flow name="orders-headers-subscriber-flow" doc:id="952597a7-e132-47c3-9562-a7bad4adffb5" >
+		<db:listener table="sales_order_header" doc:name="On Table Row" doc:id="cacad534-c010-4bef-baaa-75c146ebb9ff" config-ref="Postgres_Database_Config" watermarkColumn="sales_order_id" idColumn="sales_order_id">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</db:listener>
+		<logger level="TRACE" doc:name="Trace - Flow Starting" doc:id="324b2be4-d2e9-4a92-b41c-0217b653f35b" message="Flow starting"/>
+		<logger level="TRACE" doc:name="Trace - Sales Order ID" doc:id="9f74fce9-388c-4d31-b937-100b653b0803" message="#['Processing header of sales order with id = ' ++ payload.sales_order_id]"/>
+		<flow-ref doc:name="get-dataweave-script-flow" doc:id="59dbb1dd-1ab0-4842-b789-dc087c57d606" name="get-dataweave-script-flow"/>
+		<logger level="TRACE" doc:name="Trace - Transforming to JSON" doc:id="77dcd416-3a77-4d59-85c3-81461295d77a" message="Trace - Transforming sales order headers to JSON format"/>
+		<ee:dynamic-evaluate doc:name="Transform to JSON" doc:id="8922bf09-ab14-4490-9378-3674dc5c20c0" expression="#[vars.dwOrderHeaderScript]"/>
+		<logger level="INFO" doc:name="Trace - JSON Ouput" doc:id="612f32bd-53bb-4253-9358-9a488c23c42f" message="#[payload]"/>
+		<logger level="TRACE" doc:name="Trace - Publishing to Queue" doc:id="a81dcdb4-2ad3-4275-ae49-41c25175a2da" message="Publishing sales order header data to Anypoint MQ queue"/>
+		<anypoint-mq:publish doc:name="To Queue" doc:id="ad7aeded-7dd6-49d5-9523-25c47a602a45" config-ref="Anypoint_MQ_Config" destination="${anypoint_mq.destination}"/>
+		<logger level="TRACE" doc:name="Trace - Flow Ending" doc:id="18ba5be2-4ec0-4bb2-b481-823eac4b5335" message="Flow ending" />
+	</flow>
+	<flow name="get-dataweave-script-flow" doc:id="01698400-936e-4a2a-a6fa-59123d0a80c8" >
+		<logger level="TRACE" doc:name="Trace - Flow Starting" doc:id="26f7c663-5b3f-4b15-b7ea-1e753249f74e" message="Flow starting" />
+		<logger level="TRACE" doc:name="Trace - Retrieving DW Script" doc:id="c82eb879-0f1a-4a2a-a61c-51b89217a2d3" message="Retrieving DataWeave script from database" />
+		<db:select doc:name="FROM DW Script Table" doc:id="ec828777-41e3-430b-9da1-50b744586bb0" config-ref="Postgres_Database_Config" target="dwOrderHeaderScript" targetValue="#[payload[0].dw_script as String]">
+			<db:sql><![CDATA[SELECT script_name, dw_script
+FROM public.dataweave_script
+WHERE script_name = 'sales-order-header-script';]]></db:sql>
+		</db:select>
+		<logger level="TRACE" doc:name="Trace - DW Script" doc:id="5da1bfd8-f4dc-42ca-a5b5-571b85bb3c56" message="#[vars.dwOrderHeaderScript]"/>
+		<logger level="TRACE" doc:name="Trace - Flow Ending" doc:id="5f424c2e-5d03-43db-98e6-8a89ef424ead" message="Flow ending" />
+	</flow>
+</mule>

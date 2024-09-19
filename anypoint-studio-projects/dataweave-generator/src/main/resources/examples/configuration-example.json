@@ -1,0 +1,6 @@
+{
+  "scriptName": "order-header-xml-dw-script",
+  "contentType": "XML",
+  "xmlRootElement": "orders",
+  "fields": "orderNumber,firstName,lastName,email,telephone"
+}

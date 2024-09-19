@@ -1,0 +1,94 @@
+#%RAML 1.0
+title: DataWeave Scripts Generator
+description: |
+    This Mule API, as its name implies, demonstrates how to generate a DataWeave script dynamically
+    based on a basic JSON configuration file. It also includes functionality to interact with
+    generated scripts stored in the underlying repository.
+mediaType:
+  - application/json
+
+/dw-scripts:
+  get:
+    displayName: Retrieves all DW scripts
+    description: Retrieves all DataWeave scripts from the repository
+    responses:
+      "200":
+        body:
+          type: DataWeaveScripts
+          items:
+            type: DataWeaveScript
+  post:
+    displayName: Generates a DW script
+    description: Generates a new DataWeave script using the configuration information provided.
+    body:
+      type: Configuration
+    responses:
+      "201":
+        body:
+          type: DataWeaveScript
+
+/dw-scripts/{scriptName}:
+  uriParameters:
+    scriptName:
+      description: The name of the DataWeave script to retrieve
+      example: order-header-dw-script
+      type: string
+  get:
+    displayName: Retrieves a DW script
+    description: Retrieves the DataWeave script identified by the specified script name
+    responses:
+      "200":
+        body:
+          type: DataWeaveScript
+  delete:
+    displayName: Deletes a DW script
+    description: Deletes the DataWeave script identified by the specified script name
+    responses:
+      "204":
+        body: {}
+  put:
+    displayName: Regenerates a DW script
+    description: Regenerates the DataWeave script identified by the specified script name using the configuration information provided.
+    body:
+      type: Configuration
+    responses:
+      "200":
+        body:
+          type: DataWeaveScript
+
+types:
+  DataWeaveScripts:
+    description: Represents a list of DataWeave scripts and is typically used to retrieve all or a subset of all the scripts stored in the repository
+    items:
+      type: DataWeaveScript
+
+  DataWeaveScript:
+    description: Encapsulates the information stored in the DataWeave scripts repository for a given script - e.g., configuration information and generated script.
+    properties:
+      configuration:
+        description: Includes the information used for generating a DataWeave script
+        type: Configuration
+      dwScript:
+        description: Represents the DataWeave script, which is typically generated using the information contained in the configuration property
+        example: "%dw 2.0 output application/json --- {   \"orderNumber\": payload.orderNumber,   \"firstName\": payload.firstName,   \"lastName\": payload.lastName,   \"email\": payload.email,   \"telephone\": payload.telephone }"
+        type: string
+
+  Configuration:
+    description: Includes the information used for generating a DataWeave script.
+    properties:
+      scriptName:
+        description: Specifies the name of the DataWeave script generated. This property is used to store and uniquely identify the script in the repository.
+        example: order-header-dw-script
+        type: string
+      contentType:
+        description: Specifies the media type of the output directive when generating the DataWeave script.
+        example: XML
+        type: string
+      xmlRootElement?:
+        description: Specifies the root element of the XML document produced by the generated DataWeave script. This property is optional and only applicable when the contentType is XML.
+        example: orders
+        type: string
+      fields:
+        description: Specifies the fields to map when generating the DataWeave script. In this version, the DataWeave Scripts Configurator does not support specifying different field names in the source and target payloads.
+        example: orderNumber,firstName,lastName,email,telephone
+        type: string

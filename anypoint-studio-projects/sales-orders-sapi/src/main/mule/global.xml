@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd">
+	<global-property doc:name="Global Property" doc:id="b1390762-4d23-4e76-82f3-2fc1c54fa6cb" name="env" value="dev" />
+	<configuration-properties doc:name="Configuration properties" doc:id="f6b2d3bc-2b40-4843-ba00-33fd2a4cf582" file="properties/mule-props-${env}.yaml" />
+	<http:listener-config name="sales-orders-sapi-httpListenerConfig">
+		<http:listener-connection host="${http_listener.host}" port="${http.port}"/>
+	</http:listener-config>
+	<db:config name="Postgres_Database_Config" doc:name="Database Config" doc:id="56768539-a4da-423e-a3eb-cf9d4b4b6d4a" >
+		<db:generic-connection url="${postgres_db.url}" driverClassName="${postgres_db.driver_class}" user="${postgres_db.username}" password="${postgres_db.password}" />
+	</db:config>
+	<anypoint-mq:config name="Anypoint_MQ_Config" doc:name="Anypoint MQ Config" doc:id="a891f586-9a9f-4819-9249-d387df108495" >
+		<anypoint-mq:connection url="${anypoint_mq.url}" clientId="${anypoint_mq.client_id}" clientSecret="${anypoint_mq.client_secret}"/>
+	</anypoint-mq:config>
+</mule>

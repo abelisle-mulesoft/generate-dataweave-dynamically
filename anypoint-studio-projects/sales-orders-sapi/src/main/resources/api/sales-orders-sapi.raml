@@ -1,0 +1,131 @@
+#%RAML 1.0
+title: Sales Orders System API
+description: |
+  This Mule API showcases how to use a Dynamic Evaluate component retrieved from a database. As this
+  Mule API  was explicitly created for a demo, its specification and implementation are intentionally
+  kept as simple as possible (e.g., all properties are strings).
+mediaType:
+  - application/json
+
+/sales-orders:
+  /headers:
+    get:
+      displayName: Get Sales Order Headers
+      description: Get all Sales Order Headers from the system of record.
+      responses:
+        "200":
+          body:
+            type: OrderHeaders
+            items:
+              type: OrderHeader
+
+types:
+  OrderHeaders:
+    description: Array of Sales Order Headers
+    items:
+      type: OrderHeader
+
+  OrderHeader:
+    description: |
+      The order header contains data that is common and relevant for all items within the sales
+      order. This information includes but is not limited to order date, ship date, billing address,
+      and shipping address.
+    properties:
+      orderDate:
+        description: Date the sales order was created.
+        type: string
+        example: "20240901"
+      dueDate:
+        description: Date customer expects their order.
+        type: string
+        example: "20240908"
+      shipDate:
+        description: Date the order shipped.
+        type: string
+        example: "20240902"
+      status:
+        description: Current status of the order.
+        type: string
+        example: "Closed"
+      onlineOrderFlag:
+        description: Flag to indicate if the customer placed the order online.
+        type: string
+        example: "true"
+      salesOrderNumber:
+        description: Sales order unique identification number.
+        type: string
+        example: "A-174584"
+      purchaseOrderNumber:
+        description: The customer's purchase order number associated with this sales order.
+        type: string
+        example: "PO-46857389"
+      accountNumber:
+        description: The customer's account number in the system of record.
+        type: string
+        example: "1875"
+      customerId:
+        description: Foreign key that associates the customer's information with this sales order.
+        type: string
+        example: "7146"
+      salesPersonId:
+        description: |
+          The unique identifier of the sales person who assisted the customer with this order, if
+          applicable.
+        type: string
+        example: "1093"
+      territoryId:
+        description: The unique identifier of the sales territory associated with the customer.
+        type: string
+        example: "156"
+      billToAddressId:
+        description: Foreign key that associates the customer's bill to address with this sales order.
+        type: string
+        example: "3411"
+      shipToAddressId:
+        description: Foreign key that associates the customer's ship to address with this sales order.
+        type: string
+        example: "2565"
+      shipMethodId:
+        description: Foreign key that associates the shipping method with this sales order.
+        type: string
+        example: "148"
+      creditCardId:
+        description: |
+          Foreign key that associates the customer's credit card information with this sales order.
+        type: string
+        example: "1373"
+      creditCardApprovalCode:
+        description: Approval code provided by the credit card company, if applicable.
+        type: string
+        example: "G19-418"
+      currencyRateId:
+        description: |
+          Foreign key that associates a currency exchange rate with this sales order, if applicable.
+        type: string
+        example: "163"
+      subTotal:
+        description: Sum of all order line items before taxes and shiiping costs.
+        type: string
+        example: "6251.92"
+      taxAmount:
+        description: Amount of sales taxe associated to this sales order, if applicable.
+        type: string
+        example: "375.12"
+      freight:
+        description: Freight shipping cost associated to this sales order, if applicable.
+        type: string
+        example: "0.00"
+      totalDue:
+        description: |
+          The total sales order amount due by the customer (e.g., sub-total + taxes + freight).
+        type: string
+        example: "6627.04"
+      comment:
+        description: |
+          Any comment added by the customer, a sales person, or a customer service representative.
+        type: string
+        example: "6627.04"
+      modifiedDate:
+        description: The date the sales order was last modified, if applicable.
+        type: string
+        example: "20240902"
