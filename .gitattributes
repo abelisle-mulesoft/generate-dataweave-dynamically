@@ -1,1 +1,2 @@
 *.raml linguist-detectable=false
+*.dwl linguist-detectable=false
