@@ -1,0 +1,241 @@
+{
+	"info": {
+		"_postman_id": "19b9aee9-bfd6-4fd4-81e9-67c214d0e0f6",
+		"name": "Generate DataWeave Dynamically",
+		"description": "This basic Postman collection is one of the resources included in the GitHub repository [generate-dataweave-dynamically](https://github.com/abelisle-mulesoft/generate-dataweave-dynamically), which includes assets and resources used to demonstrate how to generate a DataWeave script dynamically.\n\nThis Postman collection includes essential requests for interacting with the two Mule applications, the Dataweave Generator API and the Sales Orders System API.\n\n**REMARK: Remember to update the collection variables before executing any of the requests.**",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16873374"
+	},
+	"item": [
+		{
+			"name": "DataWeave Generator",
+			"item": [
+				{
+					"name": "Retrieves all DW scripts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{dataweaveGeneratorURL}}/api/dw-scripts",
+							"host": [
+								"{{dataweaveGeneratorURL}}"
+							],
+							"path": [
+								"api",
+								"dw-scripts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve a DW script by name",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{dataweaveGeneratorURL}}/api/dw-scripts/:scriptName",
+							"host": [
+								"{{dataweaveGeneratorURL}}"
+							],
+							"path": [
+								"api",
+								"dw-scripts",
+								":scriptName"
+							],
+							"variable": [
+								{
+									"key": "scriptName",
+									"value": "sales-order-header-script",
+									"description": "The name of the script to retrieve"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a DW script",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{dataweaveGeneratorURL}}/api/dw-scripts/:scriptName",
+							"host": [
+								"{{dataweaveGeneratorURL}}"
+							],
+							"path": [
+								"api",
+								"dw-scripts",
+								":scriptName"
+							],
+							"variable": [
+								{
+									"key": "scriptName",
+									"value": "sales-order-header-script",
+									"description": "The name of the script to delete"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generates a new DW script",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"scriptName\": \"sales-order-header-script\",\n  \"contentType\": \"JSON\",\n  \"fields\": \"sales_order_id,order_date,status,sub_total,total_due\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{dataweaveGeneratorURL}}/api/dw-scripts",
+							"host": [
+								"{{dataweaveGeneratorURL}}"
+							],
+							"path": [
+								"api",
+								"dw-scripts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Regenerates a DW script - XML example",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"scriptName\": \"sales-order-header-script\",\n  \"contentType\": \"XML\",\n  \"xmlRootElement\": \"orders\",\n  \"fields\": \"sales_order_id,order_date,status,sub_total,total_due\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{dataweaveGeneratorURL}}/api/dw-scripts/:scriptName",
+							"host": [
+								"{{dataweaveGeneratorURL}}"
+							],
+							"path": [
+								"api",
+								"dw-scripts",
+								":scriptName"
+							],
+							"variable": [
+								{
+									"key": "scriptName",
+									"value": "sales-order-header-script",
+									"description": "The name of the script to regenerate"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Regenerates a DW script - JSON example",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"scriptName\": \"sales-order-header-script\",\n  \"contentType\": \"JSON\",\n  \"fields\": \"sales_order_id,order_date,status,sub_total,total_due\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{dataweaveGeneratorURL}}/api/dw-scripts/:scriptName",
+							"host": [
+								"{{dataweaveGeneratorURL}}"
+							],
+							"path": [
+								"api",
+								"dw-scripts",
+								":scriptName"
+							],
+							"variable": [
+								{
+									"key": "scriptName",
+									"value": "sales-order-header-script",
+									"description": "The name of the script to regenerate"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "This folder contains essential API requests for interacting with all the methods supported by the Dataweave Generator API, i.e., GET, DELETE, POST, and PUT."
+		},
+		{
+			"name": "Sales Orders SAPI",
+			"item": [
+				{
+					"name": "Sales Orders Headers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{salesOrdersHeadersURL}}/api/sales-orders/headers",
+							"host": [
+								"{{salesOrdersHeadersURL}}"
+							],
+							"path": [
+								"api",
+								"sales-orders",
+								"headers"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "This folder contains a single API request used as a smoke test - e.g., to ensure the Mule API is functional and connected to the database (which acts as the system of record in this demo). More specifically, the request retrieves all sales order headers from the database."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "salesOrdersHeadersURL",
+			"value": "<Sales Orders Headers URL>"
+		},
+		{
+			"key": "dataweaveGeneratorURL",
+			"value": "<Dataweave Generator URL>"
+		}
+	]
+}
