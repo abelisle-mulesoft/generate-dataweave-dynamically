@@ -133,8 +133,8 @@ The DataWeave Generator API is implemented as a REST API specified using the RES
 
   ![env global property](assets/images/GSG-DW-Gen-04-Env-Global-Property.png)
 
-  > [!TIP]
-  > This typical practice enables you to override this property when deploying your application to higher environments (e.g., test, QA, prod), which results in picking up the properties file specific to that environment.
+> [!TIP]
+> This typical practice enables you to override this property when deploying your application to higher environments (e.g., test, QA, prod), which results in picking up the properties file specific to that environment.
 
   - Second, the configuration properties, which follows the naming convention of `mule-props-<environment>` to support environment-specific files.
 
