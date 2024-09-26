@@ -1,0 +1,14 @@
+{
+  "dateTime": "2023-01-01T08:00:00.000-08:00",
+  "httpStatus": "400",
+  "summaryMessage": "Validation failed (see responseDetails for more information)",
+  "errorType": "APP.VALIDATION_FAILED",
+  "responseStatus": "ERROR",
+  "responseDetails": [
+    {
+      "severity": "ERROR",
+      "code": "VAL1004",
+      "message": "Customer number not found in target system"
+    }
+  ]
+}

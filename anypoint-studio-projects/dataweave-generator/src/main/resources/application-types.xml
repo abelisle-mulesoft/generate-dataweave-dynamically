@@ -437,6 +437,20 @@ type auto_19e50200_851e_48b3_9836_b39117abae57_Output_Variables_outboundHeaders 
 
 ]]></types:shape>
     </types:type>
+    <types:type name="comprehensive-response-json-example" format="json">
+      <types:shape format="weave" example="examples/comprehensive-response-example.json"><![CDATA[%dw 2.0
+
+type comprehensive_response_json_example = {|
+  dateTime: String, 
+  httpStatus: String, 
+  summaryMessage: String, 
+  errorType: String, 
+  responseStatus: String, 
+  responseDetails: Array<{|    severity: String,     code: String,     message: String  |}>
+|} {"example": "{\\\"dateTime\\\":\\\"2023-01-01T08:00:00.000-08:00\\\",\\\"httpStatus\\\":\\\"400\\\",\\\"summaryMessage\\\":\\\"Validation failed (see responseDetails for more information)\\\",\\\"errorType\\\":\\\"APP.VALIDATION_FAILED\\\",\\\"responseStatus\\\":\\\"ERROR\\\",\\\"responseDetails\\\":[{\\\"severity\\\":\\\"ERROR\\\",\\\"code\\\":\\\"VAL1004\\\",\\\"message\\\":\\\"Customer number not found in target system\\\"}]}"}
+
+]]></types:shape>
+    </types:type>
   </types:catalog>
   <types:enrichment select="#db1c7044-b3bd-4d65-859d-d46bddcf864c">
     <types:processor-declaration>
@@ -554,7 +568,15 @@ type auto_19e50200_851e_48b3_9836_b39117abae57_Output_Variables_outboundHeaders 
       </types:output-event>
     </types:processor-declaration>
   </types:enrichment>
-  <types:enrichment select="#2a4f58d2-5587-4b4a-bf79-f564591ff977"/>
+  <types:enrichment select="#2a4f58d2-5587-4b4a-bf79-f564591ff977">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="comprehensive-response-json-example"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
   <types:enrichment select="#19e50200-851e-48b3-9836-b39117abae57">
     <types:processor-declaration>
       <types:input-event>
@@ -575,6 +597,69 @@ type auto_19e50200_851e_48b3_9836_b39117abae57_Output_Variables_outboundHeaders 
           <types:variable name="outboundHeaders" type="auto_19e50200-851e-48b3-9836-b39117abae57_Output-Variables-outboundHeaders"/>
           <types:variable name="httpStatus" type="auto_19e50200-851e-48b3-9836-b39117abae57_Output-Variables-httpStatus"/>
         </types:variables>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#838ce34a-43c5-46cc-9111-02427546b38a">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="comprehensive-response-json-example"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#ccaddfb3-01c2-4d8d-b1b8-93bcf0d695f6">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="comprehensive-response-json-example"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#30cdf301-5374-45b0-8e79-3b2c9616f8b9">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="comprehensive-response-json-example"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#cfc6b515-f555-4842-b709-12cafa38d44d">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="comprehensive-response-json-example"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#8a4fdabf-70e2-424b-b222-ad03a7d600e4">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="comprehensive-response-json-example"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#73a2d7e4-6a4b-40d2-a4dc-e4e222a96d0d">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="comprehensive-response-json-example"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#ca426582-b5f9-4d3f-99ed-0b681228a79f">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="comprehensive-response-json-example"/>
+        </types:message>
       </types:output-event>
     </types:processor-declaration>
   </types:enrichment>
