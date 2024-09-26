@@ -58,8 +58,8 @@ payload map ( payload01 , indexOfPayload01 ) -> {
 		<logger level="TRACE" doc:name="Trace - Flow Starting" doc:id="324b2be4-d2e9-4a92-b41c-0217b653f35b" message="Flow starting"/>
 		<logger level="TRACE" doc:name="Trace - Sales Order ID" doc:id="9f74fce9-388c-4d31-b937-100b653b0803" message="#['Processing header of sales order with id = ' ++ payload.sales_order_id]"/>
 		<flow-ref doc:name="get-dataweave-script-flow" doc:id="59dbb1dd-1ab0-4842-b789-dc087c57d606" name="get-dataweave-script-flow"/>
-		<logger level="TRACE" doc:name="Trace - Transforming to JSON" doc:id="77dcd416-3a77-4d59-85c3-81461295d77a" message="Trace - Transforming sales order headers to JSON format"/>
-		<ee:dynamic-evaluate doc:name="Transform to JSON" doc:id="8922bf09-ab14-4490-9378-3674dc5c20c0" expression="#[vars.dwOrderHeaderScript]"/>
+		<logger level="TRACE" doc:name="Trace - Transforming Data" doc:id="77dcd416-3a77-4d59-85c3-81461295d77a" message="Trace - Transforming sales order headers to JSON format"/>
+		<ee:dynamic-evaluate doc:name="Transform Data" doc:id="8922bf09-ab14-4490-9378-3674dc5c20c0" expression="#[vars.dwOrderHeaderScript]"/>
 		<logger level="INFO" doc:name="Trace - Ouput Data" doc:id="612f32bd-53bb-4253-9358-9a488c23c42f" message="#[payload]"/>
 		<logger level="TRACE" doc:name="Trace - Publishing to Queue" doc:id="a81dcdb4-2ad3-4275-ae49-41c25175a2da" message="Publishing sales order header data to Anypoint MQ queue"/>
 		<anypoint-mq:publish doc:name="To Queue" doc:id="ad7aeded-7dd6-49d5-9523-25c47a602a45" config-ref="Anypoint_MQ_Config" destination="${anypoint_mq.destination}"/>
